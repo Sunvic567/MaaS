@@ -13,12 +13,13 @@ class Settings:
         os.getenv("SUPABASE_SERVICE_KEY", ""),
     )
 
-    embedding_provider = os.getenv("EMBEDDING_PROVIDER", "huggingface")
-    # Embedding model
-    embedder = HuggingFaceEndpointEmbeddings(
-        model="BAAI/bge-small-en-v1.5",
-        huggingfacehub_api_token=os.getenv("HUGGINGFACE_API_KEY", ""),
-    )
+    # embedding_provider = os.getenv("EMBEDDING_PROVIDER", "huggingface")
+    # # Embedding model
+    # embedder = HuggingFaceEndpointEmbeddings(
+    #     model="BAAI/bge-small-en-v1.5",
+    #     huggingfacehub_api_token=os.getenv("HUGGINGFACE_API_KEY", ""),
+    # )
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
     # Constants
     RECENCY_DECAY_LAMBDA = 0.01
