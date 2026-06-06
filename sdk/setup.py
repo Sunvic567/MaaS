@@ -18,8 +18,8 @@ setup(
         "Homepage":      "https://memlayer.online",
     },
     license="MIT",
-    packages=find_packages(where="sdk"),
-    package_dir={"": "sdk"},
+    packages=find_packages(),    # ← removed where="sdk"
+    package_dir={"": "."},       # ← current directory, not "sdk"
     install_requires=["httpx>=0.27.0"],
     python_requires=">=3.10",
     classifiers=[
@@ -27,7 +27,6 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
-        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
