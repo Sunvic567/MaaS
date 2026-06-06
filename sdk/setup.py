@@ -5,16 +5,16 @@ long_description = (Path(__file__).parent / "README.md").read_text(encoding="utf
 
 setup(
     name="memlayer-py",
-    version="0.1.0",
+    version="0.1.1",
     description="Persistent memory for AI agents — one API key, your agent remembers everything.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Victor Sunday",
     author_email="sunvictor567@gmail.com",
-    url="https://github.com/yourusername/memlayer",
+    url="https://github.com/sunvic567/memlayer",
     project_urls={
         "Documentation": "https://memlayer.online/docs",
-        "Bug Tracker":   "https://github.com/yourusername/memlayer/issues",
+        "Bug Tracker":   "https://github.com/sunvic567/memlayer/issues",
         "Homepage":      "https://memlayer.online",
     },
     license="MIT",
