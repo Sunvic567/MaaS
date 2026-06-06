@@ -27,6 +27,8 @@ class Settings:
     BGE_PREFIX = "Represent this sentence for searching relevant passages: "
     # Master key for admin endpoints (set in environment as MAAS_MASTER_KEY)
     MAAS_MASTER_KEY = os.getenv("MAAS_MASTER_KEY", "")
+    # Flutterwave webhook verification
+    FLUTTERWAVE_SECRET_HASH = os.getenv("FLUTTERWAVE_SECRET_HASH", "")
     # App environment
     app_env = os.getenv("ENVIRONMENT", "development")
 

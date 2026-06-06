@@ -1,16 +1,24 @@
 from contextlib import asynccontextmanager
+from typing import cast
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 
-from app.api.routes import memories, admin, health
+from app.api.routes import memories, admin, health, webhooks
 from app.core.config import get_settings
 
 settings = get_settings()
-limiter  = Limiter(key_func=get_remote_address)
+limiter = Limiter(key_func=get_remote_address)
+
+
+def _rate_limit_exception_handler(request: Request, exc: Exception) -> Response:
+    return _rate_limit_exceeded_handler(request, cast(RateLimitExceeded, exc))
+
 
 
 @asynccontextmanager
@@ -28,7 +36,7 @@ app = FastAPI(
 )
 
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exception_handler)
 
 app.add_middleware(
     CORSMiddleware,
@@ -41,6 +49,7 @@ app.add_middleware(
 app.include_router(memories.router)
 app.include_router(admin.router)
 app.include_router(health.router)
+app.include_router(webhooks.router)
 
 
 @app.exception_handler(Exception)
