@@ -379,8 +379,8 @@ Full API reference at [memlayer.online/docs](https://memlayer.online/docs).
 
 - [Website](https://memlayer.online)
 - [API Docs](https://memlayer.online/docs)
-- [GitHub](https://github.com/yourusername/memlayer)
-- [Report a Bug](https://github.com/yourusername/memlayer/issues)
+- [GitHub](https://github.com/sunvic67/memlayer)
+- [Report a Bug](https://github.com/sunvic67/memlayer/issues)
 - [Email](mailto:support@memlayer.online)
 
 ---
