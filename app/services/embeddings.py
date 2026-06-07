@@ -10,23 +10,23 @@ logger          = logging.getLogger(__name__)
 EMBEDDING_MODEL = "text-embedding-3-small"
 DIMENSIONS      = 1536
 
-_client = OpenAI(api_key=settings.OPENAI_API_KEY)
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 
 def embed_for_storage(text: str, retries: int = 3, delay: float = 1.5) -> list[float]:
-    return _embed(text, retries, delay)
+    return embed(text, retries, delay)
 
 
 def embed_for_search(text: str, retries: int = 3, delay: float = 1.5) -> list[float]:
-    return _embed(text, retries, delay)
+    return embed(text, retries, delay)
 
 
-def _embed(text: str, retries: int, delay: float) -> list[float]:
+def embed(text: str, retries: int, delay: float) -> list[float]:
     last_error = None
 
     for attempt in range(1, retries + 1):
         try:
-            response = _client.embeddings.create(
+            response = client.embeddings.create(
                 model=EMBEDDING_MODEL,
                 input=text,
                 encoding_format="float",
