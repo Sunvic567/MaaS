@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: maas-api
+    name: memlayer-api
     env: python
     region: oregon
     plan: starter
@@ -12,9 +12,13 @@ services:
         sync: false
       - key: SUPABASE_SERVICE_KEY
         sync: false
-      - key: HUGGINGFACE_API_KEY
+      - key: OPENAI_API_KEY
         sync: false
       - key: MAAS_MASTER_KEY
+        sync: false
+      - key: FLUTTERWAVE_SECRET_HASH
+        sync: false
+      - key: RESEND_API_KEY
         sync: false
       - key: APP_ENV
         value: production

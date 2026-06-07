@@ -17,6 +17,7 @@ dependencies = [
     "build>=1.5.0",
     "memlayer-py",
     "resend>=2.30.1",
+    "uvicorn[standard]==0.30.1",
 ]
 
 [tool.uv.sources]
