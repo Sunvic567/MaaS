@@ -1,0 +1,92 @@
+---
+title: Error Handling
+description: Handle MemLayer errors gracefully in your agent.
+---
+
+## Exception Classes
+
+```python
+from memlayer import (
+    MemLayerError,          # base — catches everything
+    AuthenticationError,    # 401 — bad API key
+    PlanLimitError,         # 402 — hit memory limit
+    MemoryNotFoundError,    # 404 — memory ID doesn't exist
+    DuplicateMemoryError,   # 409 — duplicate content detected
+)
+```
+
+---
+
+## Handling Each Error
+
+```python
+from memlayer import MemLayerClient, AuthenticationError, PlanLimitError
+
+client = MemLayerClient(api_key="ml_live_xxx")
+
+try:
+    result = client.remember(
+        "User prefers dark mode",
+        user_id="user_123",
+        agent_id="support_bot",
+    )
+
+except AuthenticationError:
+    # Invalid or revoked API key
+    print("Check your API key at memlayer.online")
+
+except PlanLimitError:
+    # Hit the memory limit for your plan
+    print("Memory limit reached — upgrade at memlayer.online/pricing")
+
+except DuplicateMemoryError:
+    # Content already exists — this is fine to ignore
+    pass
+
+except MemLayerError as e:
+    # Catch-all for any other API error
+    print(f"API error {e.status_code}: {e.detail}")
+```
+
+---
+
+## Error Reference
+
+| Exception | HTTP Code | When It Happens | What To Do |
+|-----------|-----------|-----------------|------------|
+| `AuthenticationError` | 401 | Invalid or missing API key | Check your key |
+| `PlanLimitError` | 402 | Hit memory limit for your plan | Upgrade plan |
+| `MemoryNotFoundError` | 404 | Memory ID doesn't exist | Check the ID |
+| `DuplicateMemoryError` | 409 | Near-identical memory exists | Skip or ignore |
+| `MemLayerError` | 5xx | Server error | Retry the request |
+
+---
+
+## Retry on Server Errors
+
+```python
+import time
+from memlayer import MemLayerClient, MemLayerError
+
+client = MemLayerClient(api_key="ml_live_xxx")
+
+
+def remember_with_retry(content, user_id, agent_id, retries=3):
+    for attempt in range(1, retries + 1):
+        try:
+            return client.remember(content, user_id=user_id, agent_id=agent_id)
+        except MemLayerError as e:
+            if e.status_code >= 500 and attempt < retries:
+                time.sleep(2 ** attempt)  # 2s, 4s backoff
+                continue
+            raise
+```
+
+---
+
+## Production Checklist
+
+<Check>Wrap every `remember()` call — duplicate errors are common and safe to ignore</Check>
+<Check>Handle `PlanLimitError` gracefully — tell your user something useful, not a raw error</Check>
+<Check>Log `MemLayerError` with status code and detail for debugging</Check>
+<Check>Never let an unhandled MemLayer error crash your agent</Check>

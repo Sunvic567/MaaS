@@ -1,0 +1,81 @@
+---
+title: Authentication
+description: How to authenticate with the MemLayer API.
+---
+
+## API Keys
+
+Every request to the MemLayer API requires an API key in the `X-API-Key` header.
+
+```bash
+curl https://memlayer.online/memories/search \
+  -H "X-API-Key: ml_live_xxx"
+```
+
+---
+
+## Getting a Key
+
+<Steps>
+  <Step title="Sign up">
+    Visit [memlayer.online](https://memlayer.online) and fill in your name and email.
+  </Step>
+  <Step title="Check your email">
+    Your API key is sent immediately. Check your inbox (and spam folder).
+  </Step>
+  <Step title="Start building">
+    Use the key in your requests. Free plan works immediately — no credit card needed.
+  </Step>
+</Steps>
+
+---
+
+## Key Format
+
+MemLayer API keys always start with `ml_`: ml_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+<Warning>
+  If your key doesn't start with `ml_` you'll get a `401 Invalid API key format` error immediately.
+</Warning>
+
+---
+
+## Keeping Keys Safe
+
+<AccordionGroup>
+  <Accordion title="Use environment variables">
+    Never hardcode your key in source code.
+
+```python
+    import os
+    from memlayer import MemLayerClient
+
+    client = MemLayerClient(api_key=os.getenv("MEMLAYER_API_KEY"))
+```
+
+```bash
+    # .env file
+    MEMLAYER_API_KEY=ml_live_xxx
+```
+  </Accordion>
+  <Accordion title="Never commit to Git">
+    Add `.env` to your `.gitignore`:
+    # .gitignore
+.env
+.env.local
+
+</Accordion>
+  <Accordion title="Lost your key?">
+    Contact support@memlayer.online with your registered email. We'll issue a new key and revoke the old one.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Errors
+
+| Code | Meaning | Fix |
+|------|---------|-----|
+| `401` | Missing or invalid key | Check your key starts with `ml_` |
+| `403` | Account suspended | Contact support |
+| `402` | Plan limit reached | Upgrade your plan |

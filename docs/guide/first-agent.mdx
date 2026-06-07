@@ -1,0 +1,186 @@
+---
+title: Build Your First Memory-Powered Agent
+description: A complete example of an AI agent that remembers users across sessions.
+---
+
+This guide builds a simple customer support agent that remembers everything about each user — across every conversation.
+
+---
+
+## What We're Building
+
+User sends message
+↓
+Agent loads their memory context
+↓
+Agent responds with full context of who this user is
+↓
+Agent saves what it learned
+↓
+Next session — agent already knows the user
+
+---
+
+## Setup
+
+```bash
+pip install memlayer-py openai python-dotenv
+```
+
+```bash
+# .env
+MEMLAYER_API_KEY=ml_live_xxx
+OPENAI_API_KEY=sk-xxx
+```
+
+---
+
+## The Agent
+
+```python
+import os
+from openai import OpenAI
+from memlayer import MemLayerClient
+from dotenv import load_dotenv
+
+load_dotenv()
+
+openai  = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+memory  = MemLayerClient(api_key=os.getenv("MEMLAYER_API_KEY"))
+
+AGENT_ID = "support_bot"
+
+
+def chat(user_id: str, user_message: str) -> str:
+
+    # Step 1 — Load what we know about this user
+    context = memory.context(
+        user_id=user_id,
+        agent_id=AGENT_ID,
+        current_message=user_message,  # uses semantic search
+        top_k=10,
+    )
+
+    # Step 2 — Build system prompt with memory context
+    memory_lines = "\n".join(f"- {m.content}" for m in context.memories)
+    system_prompt = f"""You are a helpful customer support agent.
+
+What you know about this user:
+{memory_lines if memory_lines else "Nothing yet — this is your first conversation."}
+
+Use this context to give personalised, relevant responses.
+Never ask for information you already know."""
+
+    # Step 3 — Call the LLM
+    response = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system",  "content": system_prompt},
+            {"role": "user",    "content": user_message},
+        ],
+    )
+    agent_reply = response.choices[0].message.content
+
+    # Step 4 — Save what we learned from this message
+    memory.remember(
+        content=user_message,
+        user_id=user_id,
+        agent_id=AGENT_ID,
+        memory_type="episodic",
+        importance=0.5,
+    )
+
+    return agent_reply
+
+
+# ── Run it ────────────────────────────────────────────────────────
+
+if __name__ == "__main__":
+    USER = "user_victor"
+
+    # First session
+    print(chat(USER, "Hi, I'm Victor. I'm based in Lagos and I build AI agents."))
+    print(chat(USER, "I prefer technical, concise responses — no fluff."))
+
+    # ---- New session starts here ----
+    # Memory persists automatically
+
+    print(chat(USER, "Hey, what do you know about me?"))
+    # Agent responds with: "You're Victor, based in Lagos, 
+    # you build AI agents, and you prefer technical concise responses."
+```
+
+---
+
+## What's Happening
+
+<Steps>
+  <Step title="Load context">
+    `memory.context()` fetches the top 10 memories for this user before the agent responds. The `current_message` parameter uses semantic search to find the most relevant ones.
+  </Step>
+  <Step title="Inject into prompt">
+    Memory context is injected into the system prompt. The agent knows everything about the user before it says a word.
+  </Step>
+  <Step title="Respond">
+    The LLM generates a response with full user context.
+  </Step>
+  <Step title="Save">
+    The user's message is saved as an episodic memory. Next session it'll be in context.
+  </Step>
+</Steps>
+
+---
+
+## Improving It
+
+<AccordionGroup>
+  <Accordion title="Save important facts separately">
+    When the agent detects a key fact, store it as semantic memory with high importance:
+
+```python
+    # After the LLM responds, extract and store key facts
+    memory.remember(
+        "User is based in Lagos, Nigeria",
+        user_id=user_id,
+        agent_id=AGENT_ID,
+        memory_type="semantic",
+        importance=0.9,   # always surface this
+    )
+```
+  </Accordion>
+  <Accordion title="Update when facts change">
+    When a user corrects something, update the old memory:
+
+```python
+    # Find the old memory
+    memories = memory.recall(
+        "where does this user live",
+        user_id=user_id,
+        agent_id=AGENT_ID,
+        top_k=1,
+    )
+
+    if memories:
+        # Update in place
+        memory.update(
+            memory_id=memories[0].id,
+            user_id=user_id,
+            agent_id=AGENT_ID,
+            new_content="User moved from Lagos to Abuja",
+        )
+```
+  </Accordion>
+  <Accordion title="Use TTL for temporary context">
+    Session-specific context should expire automatically:
+
+```python
+    memory.remember(
+        "User is currently asking about order #4521",
+        user_id=user_id,
+        agent_id=AGENT_ID,
+        memory_type="episodic",
+        ttl_days=1,   # gone tomorrow
+    )
+```
+  </Accordion>
+</AccordionGroup>

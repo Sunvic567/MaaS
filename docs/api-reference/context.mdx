@@ -1,0 +1,110 @@
+---
+title: Get Context
+api: GET https://memlayer.online/memories/context
+description: Load the most relevant memories at session start.
+---
+
+## Overview
+
+Call this at the beginning of every conversation — before the user says anything. MemLayer returns the most important and recent memories for this user so your agent already knows who they are.
+
+If you pass `current_message`, MemLayer uses semantic search to return memories most relevant to what the user just said. Otherwise it returns memories sorted by importance and recency.
+
+---
+
+## Request
+
+### Headers
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `X-API-Key` | Yes | Your MemLayer API key |
+
+### Query Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `user_id` | string | Yes | — | Load memories for this user. |
+| `agent_id` | string | Yes | — | Load memories for this agent. |
+| `top_k` | integer | No | `10` | Number of memories to return. Min 1, max 50. |
+| `current_message` | string | No | `null` | First message from the user. Enables semantic retrieval. |
+
+<CodeGroup>
+```bash curl
+# Without current message — sorted by importance + recency
+curl "https://memlayer.online/memories/context?\
+user_id=user_123&agent_id=support_bot&top_k=10" \
+  -H "X-API-Key: ml_live_xxx"
+
+# With current message — semantic retrieval
+curl "https://memlayer.online/memories/context?\
+user_id=user_123&agent_id=support_bot&\
+current_message=I+need+help+with+my+order" \
+  -H "X-API-Key: ml_live_xxx"
+```
+
+```python Python SDK
+# At session start — no message yet
+context = client.context(
+    user_id="user_123",
+    agent_id="support_bot",
+    top_k=10,
+)
+
+# When user sends first message
+context = client.context(
+    user_id="user_123",
+    agent_id="support_bot",
+    current_message="I need help with my order",
+)
+
+# Inject into system prompt
+memory_lines = "\n".join(f"- {m.content}" for m in context.memories)
+system_prompt = f"What you know about this user:\n{memory_lines}"
+```
+</CodeGroup>
+
+---
+
+## Response
+
+### 200 — Success
+
+```json
+{
+  "memories": [...],
+  "total":  4,
+  "limit":  10,
+  "offset": 0
+}
+```
+
+<Info>
+  Returns the same Memory object as the search endpoint. See [Search Memories](/api-reference/search) for the full field reference.
+</Info>
+
+---
+
+## Notes
+
+<AccordionGroup>
+  <Accordion title="When to use context() vs recall()">
+    Use `context()` at **session start** when you don't have a query yet. It returns the most important memories by default.
+
+    Use `recall()` **during a session** when the user asks something specific. It uses semantic search to find the most relevant memories for that specific query.
+
+    You can use both — `context()` at the start, then `recall()` on each user message.
+  </Accordion>
+  <Accordion title="New users">
+    If the user has no memories yet, `context()` returns an empty list. Your agent should handle this gracefully:
+
+```python
+    context = client.context(user_id=user_id, agent_id=agent_id)
+
+    if context.memories:
+        memory_text = "\n".join(f"- {m.content}" for m in context.memories)
+    else:
+        memory_text = "This is a new user — no previous context."
+```
+  </Accordion>
+</AccordionGroup>

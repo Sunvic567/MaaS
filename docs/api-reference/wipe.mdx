@@ -1,0 +1,85 @@
+---
+title: Wipe All Memories
+api: DELETE https://memlayer.online/memories
+description: Delete all memories for a user and agent pair.
+---
+
+## Overview
+
+Removes every memory stored for a `user_id` + `agent_id` combination. Use for GDPR right-to-erasure requests, account resets, or starting fresh.
+
+<Warning>
+  This is irreversible. All memories for the specified user and agent are permanently deleted.
+</Warning>
+
+---
+
+## Request
+
+### Headers
+
+| Name | Required | Description |
+|------|----------|-------------|
+| `X-API-Key` | Yes | Your MemLayer API key |
+
+### Query Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `user_id` | string | Yes | Wipe memories for this user. |
+| `agent_id` | string | Yes | Wipe memories for this agent. |
+| `confirm` | boolean | Yes | Must be `true`. Prevents accidental wipes. |
+
+<CodeGroup>
+```bash curl
+curl -X DELETE \
+  "https://memlayer.online/memories?\
+user_id=user_123&agent_id=support_bot&confirm=true" \
+  -H "X-API-Key: ml_live_xxx"
+```
+
+```python Python SDK
+result = client.forget_all(
+    user_id="user_123",
+    agent_id="support_bot",
+)
+print(result.deleted)   # number of memories deleted
+print(result.message)   # "Wiped 47 memories for user=user_123 agent=support_bot"
+```
+</CodeGroup>
+
+---
+
+## Response
+
+### 200 — Success
+
+```json
+{
+  "deleted": 47,
+  "message": "Wiped 47 memories for user=user_123 agent=support_bot."
+}
+```
+
+### 400 — Confirm Not Set
+
+```json
+{
+  "detail": "Set confirm=true to wipe all memories."
+}
+```
+
+You must explicitly pass `confirm=true`. This prevents accidental deletion from a missing parameter.
+
+---
+
+## Notes
+
+<AccordionGroup>
+  <Accordion title="Scope is user + agent">
+    Wipe only affects the specific `user_id` + `agent_id` combination. Other users and other agents are not touched. To wipe all memories for a user across all agents, call wipe for each `agent_id` separately.
+  </Accordion>
+  <Accordion title="GDPR compliance">
+    When a user requests data deletion, call `wipe_all()` for every agent that has stored memories for them. This permanently removes all their data from MemLayer. For BYOD tenants, deletion happens on their own database.
+  </Accordion>
+</AccordionGroup>
