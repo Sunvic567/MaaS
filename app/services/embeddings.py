@@ -2,7 +2,7 @@ import os
 import time
 import logging
 from openai import OpenAI
-from core.config import Settings
+from app.core.config import Settings
 
 settings = Settings()
 
