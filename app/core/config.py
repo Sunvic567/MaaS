@@ -15,6 +15,7 @@ class Settings:
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
     # Constants
+    ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
     RECENCY_DECAY_LAMBDA = 0.01
     AUTO_SUMMARISE_THRESHOLD = 100
     BGE_PREFIX = "Represent this sentence for searching relevant passages: "
