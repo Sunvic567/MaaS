@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 from supabase import create_client
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from wrapt import lru_cache
 
 load_dotenv()
@@ -13,12 +12,6 @@ class Settings:
         os.getenv("SUPABASE_SERVICE_KEY", ""),
     )
 
-    # embedding_provider = os.getenv("EMBEDDING_PROVIDER", "huggingface")
-    # # Embedding model
-    # embedder = HuggingFaceEndpointEmbeddings(
-    #     model="BAAI/bge-small-en-v1.5",
-    #     huggingfacehub_api_token=os.getenv("HUGGINGFACE_API_KEY", ""),
-    # )
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 
     # Constants
