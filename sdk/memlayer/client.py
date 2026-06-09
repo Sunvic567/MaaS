@@ -155,7 +155,7 @@ class MemLayerClient:
     def __init__(
         self,
         api_key:  str,
-        base_url: str = "https://memlayer.online",
+        base_url: str = "https://api.memlayer.online",
         timeout:  float = 30.0,
     ):
         self.base_url = base_url.rstrip("/")
