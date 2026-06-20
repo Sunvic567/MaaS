@@ -568,7 +568,7 @@ async def update_tenant_model(tenant_id: str, new_model: str, db: Client) -> Non
         )
 
     await _exec_query(
-        db.table("tenants").update({"embedding_model": new_model}).eq("id", tenant_id),
+        db.table("tenants").update({"embedding_model": new_model}).eq("tenant_id", tenant_id),
         "update tenant embedding model",
     )
      

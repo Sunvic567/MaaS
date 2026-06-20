@@ -52,6 +52,13 @@ async def get_current_tenant(
             detail="Account suspended. Contact support.",
         )
 
+    # Backwards compatibility: if DB returns `tenant_id`, also expose `id`.
+    try:
+        if "tenant_id" in tenant and "id" not in tenant:
+            tenant["id"] = tenant.get("tenant_id")
+    except Exception:
+        pass
+
     return tenant
 
 
