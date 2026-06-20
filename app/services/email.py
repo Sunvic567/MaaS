@@ -4,6 +4,7 @@ import os
 import resend
 
 resend.api_key = os.getenv("RESEND_API_KEY", "")
+FROM_EMAIL = os.getenv("RESEND_FROM_EMAIL", "support@memlayer.online")
 
 
 async def send_api_key_email(
@@ -29,7 +30,7 @@ async def send_api_key_email(
 
 def _send_email(email: str, subject: str, body: str) -> None:
     resend.Emails.send({
-        "from":    "sunvictor567@gmail.com",
+        "from":    FROM_EMAIL,
         "to":      email,
         "subject": subject,
         "html":    body,
