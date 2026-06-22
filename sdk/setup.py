@@ -4,18 +4,18 @@ from pathlib import Path
 long_description = (Path(__file__).parent / "README.md").read_text(encoding="utf-8")
 
 setup(
-    name="memlayer-py",
+    name="Remem-py",
     version="0.1.3",
     description="Persistent memory for AI agents — one API key, your agent remembers everything.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Victor Sunday",
     author_email="sunvictor567@gmail.com",
-    url="https://github.com/sunvic567/memlayer",
+    url="https://github.com/sunvic567/remem",
     project_urls={
         "Documentation": "https://memlayer.online/docs",
-        "Bug Tracker":   "https://github.com/sunvic567/memlayer/issues",
-        "Homepage":      "https://memlayer.online",
+        "Bug Tracker":   "https://github.com/sunvic567/remem/issues",
+        "Homepage":      "https://dev.remem.online",
     },
     license="MIT",
     packages=find_packages(),    # ← removed where="sdk"
@@ -34,5 +34,5 @@ setup(
         "Intended Audience :: Developers",
         "Development Status :: 4 - Beta",
     ],
-    keywords="ai agent memory vector search langchain langgraph memlayer persistent memory",
+    keywords="ai agent memory vector search langchain langgraph remem persistent memory",
 )

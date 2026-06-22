@@ -15,10 +15,10 @@ async def get_current_tenant(
     Validate API key and return tenant config.
     Called as a dependency on every protected endpoint.
     """
-    if not api_key.startswith("maas_"):
+    if not api_key.startswith("fm_"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key format. Keys must start with 'maas_'",
+            detail="Invalid API key format. Keys must start with 'fm_'",
         )
 
     db = get_master_client()

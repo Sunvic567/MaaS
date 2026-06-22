@@ -1,15 +1,15 @@
 """
-MemLayer Python SDK
+remem Python SDK
 ===================
 Persistent memory for AI agents.
 
 Install:
-    pip install memlayer-py
+    pip install Remem-py
 
 Usage:
     from memlayer import MemLayerClient
 
-    client = MemLayerClient(api_key="ml_live_xxx")
+    client = RememClient(api_key="rm_live_xxx")
 
     # Store a memory
     mem_id = client.remember(
@@ -112,7 +112,7 @@ class SearchResult:
 
 # ── Exceptions ────────────────────────────────────────────────────
 
-class MemLayerError(Exception):
+class RememError(Exception):
     """Base exception for all MemLayer SDK errors."""
     def __init__(self, status_code: int, detail: str):
         self.status_code = status_code
@@ -120,29 +120,29 @@ class MemLayerError(Exception):
         super().__init__(f"MemLayer API error {status_code}: {detail}")
 
 
-class AuthenticationError(MemLayerError):
+class AuthenticationError(RememError):
     """Raised when the API key is invalid or missing."""
     pass
 
 
-class PlanLimitError(MemLayerError):
+class PlanLimitError(RememError):
     """Raised when the tenant has hit their plan memory limit."""
     pass
 
 
-class MemoryNotFoundError(MemLayerError):
+class MemoryNotFoundError(RememError):
     """Raised when a memory ID does not exist."""
     pass
 
 
-class DuplicateMemoryError(MemLayerError):
+class DuplicateMemoryError(RememError):
     """Raised when a duplicate memory is detected."""
     pass
 
 
 # ── Sync Client ───────────────────────────────────────────────────
 
-class MemLayerClient:
+class RememClient:
     """
     Synchronous MemLayer client.
 
@@ -474,7 +474,7 @@ class MemLayerClient:
             raise MemoryNotFoundError(resp.status_code, detail)
         if resp.status_code == 409:
             raise DuplicateMemoryError(resp.status_code, detail)
-        raise MemLayerError(resp.status_code, detail)
+        raise RememError(resp.status_code, detail)
 
     def close(self):
         self._client.close()
@@ -488,7 +488,7 @@ class MemLayerClient:
 
 # ── Async Client ──────────────────────────────────────────────────
 
-class AsyncMemLayerClient:
+class AsyncRememClient:
     """
     Async MemLayer client for use with asyncio, LangGraph, and FastAPI.
 
@@ -700,7 +700,7 @@ class AsyncMemLayerClient:
             raise MemoryNotFoundError(resp.status_code, detail)
         if resp.status_code == 409:
             raise DuplicateMemoryError(resp.status_code, detail)
-        raise MemLayerError(resp.status_code, detail)
+        raise RememError(resp.status_code, detail)
 
     async def __aenter__(self):
         return self

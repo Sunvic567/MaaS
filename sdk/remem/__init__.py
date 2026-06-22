@@ -1,27 +1,28 @@
-from sdk.memlayer.client import (
-    MemLayerClient,
-    AsyncMemLayerClient,
+from sdk.remem.client import (
+    RememClient,
+    AsyncRememClient,
     Memory,
     StoreResult,
     DeleteResult,
     ContextResult,
-    MemLayerError,
+    RememError,
     AuthenticationError,
     PlanLimitError,
     MemoryNotFoundError,
     DuplicateMemoryError,
 )
 
-__version__ = "0.1.0"
+
+__version__ = "0.1.4"
 
 __all__ = [
-    "MemLayerClient",
-    "AsyncMemLayerClient",
+    "RememClient",
+    "AsyncRememClient",
     "Memory",
     "StoreResult",
     "DeleteResult",
     "ContextResult",
-    "MemLayerError",
+    "RememError",
     "AuthenticationError",
     "PlanLimitError",
     "MemoryNotFoundError",

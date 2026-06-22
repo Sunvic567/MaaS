@@ -40,7 +40,7 @@ async def create_tenant(
     tenant = cast(dict[str, Any], tenant)
 
     # Issue API key
-    raw_key  = f"maas_{secrets.token_urlsafe(32)}"
+    raw_key  = f"fm_{secrets.token_urlsafe(32)}"
     key_hash = hashlib.sha256(raw_key.encode()).hexdigest()
 
     await asyncio.to_thread(
