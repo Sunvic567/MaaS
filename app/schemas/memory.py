@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional, Literal, Any
 from datetime import datetime
-import uuid
+#import uuid
 
 
 # ── Memory Types ─────────────────────────────────────────────────
@@ -134,7 +134,7 @@ class TenantCreate(BaseModel):
 
 
 class TenantOut(BaseModel):
-    id: str
+    tenant_id: str
     name: str
     email: str
     plan: str

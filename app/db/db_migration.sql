@@ -111,6 +111,21 @@ CREATE TABLE IF NOT EXISTS usage_logs (
 COMMENT ON TABLE usage_logs IS 'Per-request log for billing, rate limiting, and analytics.';
 
 
+-- ------------------------------------------------------------
+--  memory_counts
+--  Running total of stored memories per tenant.
+--  Populated automatically by trg_init_memory_count trigger.
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS memory_counts (
+  tenant_id   UUID    PRIMARY KEY REFERENCES tenants(tenant_id) ON DELETE CASCADE,
+  total       BIGINT  NOT NULL DEFAULT 0
+);
+
+COMMENT ON TABLE  memory_counts           IS 'Cached memory count per tenant, maintained by trigger.';
+COMMENT ON COLUMN memory_counts.tenant_id IS 'FK to tenants — one row per tenant.';
+COMMENT ON COLUMN memory_counts.total     IS 'Running total of stored memories for plan-limit checks.';
+
+
 -- ============================================================
 --  STEP 3: INDEXES
 -- ============================================================
@@ -296,12 +311,40 @@ COMMENT ON VIEW tenant_usage IS
 
 
 -- ============================================================
+--  STEP 8: TENANT INIT TRIGGER
+--  Inserts a memory_counts row automatically whenever a new
+--  tenant is created, so plan-limit checks always have a row.
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION init_tenant_memory_count()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO memory_counts (tenant_id, total)
+  VALUES (NEW.tenant_id, 0)
+  ON CONFLICT (tenant_id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+COMMENT ON FUNCTION init_tenant_memory_count IS
+  'Trigger function: seeds a memory_counts row for every new tenant.';
+
+DROP TRIGGER IF EXISTS trg_init_memory_count ON tenants;
+
+CREATE TRIGGER trg_init_memory_count
+  AFTER INSERT ON tenants
+  FOR EACH ROW EXECUTE FUNCTION init_tenant_memory_count();
+
+
+-- ============================================================
 --  DONE
 -- ============================================================
--- Tables:     tenants, api_keys, memories, usage_logs
+-- Tables:     tenants, api_keys, memories, usage_logs, memory_counts
 -- Indexes:    7 indexes covering auth, vector search, TTL, recency
 -- Security:   RLS on all 4 tables
 -- Functions:  match_memories (vector search RPC)
+--             init_tenant_memory_count (trigger function)
+-- Triggers:   trg_init_memory_count (seeds memory_counts on tenant insert)
 -- Cron:       expire-memories (hourly TTL cleanup)
 -- Views:      tenant_usage (plan enforcement)
 -- ============================================================

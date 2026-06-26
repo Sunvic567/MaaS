@@ -10,7 +10,7 @@ class MemoryNotFound(HTTPException):
     def __init__(self, memory_id: str):
         super().__init__(
             status_code=404,
-            detail=f"Memory '{memory_id}' not found.",
+            detail=f"Memory with ID {memory_id} not found.",
         )
 
 class DuplicateMemory(HTTPException):

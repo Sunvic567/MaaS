@@ -1,7 +1,7 @@
 import os
 import time
 import logging
-from openai import OpenAI
+#from openai import OpenAI
 from app.core.config import Settings
 from langchain_huggingface import HuggingFaceEndpointEmbeddings
 

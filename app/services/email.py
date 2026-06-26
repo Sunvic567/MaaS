@@ -54,24 +54,24 @@ def _welcome_email(name: str, api_key: str, plan: str) -> str:
 
     <h3>Quick Start</h3>
     <pre style="background:#1a1a1a;color:#e2e8f0;padding:16px;border-radius:8px;">
-pip install memlayer-py
+pip install remem-py
 
-from memlayer import MemLayerClient
+from remem import RememClient
 
-client = MemLayerClient(api_key="{api_key}")
+client = RememClient(api_key="{api_key}")
 client.remember("User prefers dark mode", user_id="u1", agent_id="bot")
     </pre>
 
     <p>
-        <a href="https://memlayer.online/docs">API Docs</a> ·
-        <a href="https://memlayer.online">Dashboard</a> ·
-        <a href="mailto:support@memlayer.online">Support</a>
+        <a href="https://docs.remem.online">API Docs</a> ·
+        <a href="https://dev.remem.online">Dashboard</a> ·
+        <a href="mailto:support@remem.online">Support</a>
     </p>
 
     <p>You're on the <strong>{plan.title()}</strong> plan.</p>
     <p>Reply to this email if you need anything.</p>
 
-    <p>— Victor, MemLayer</p>
+    <p>— Victor, Remem</p>
     """
 
 
@@ -82,9 +82,9 @@ def _upgrade_email(name: str, plan: str) -> str:
     <p>Your existing API key works immediately with your new limits.</p>
 
     <p>
-        <a href="https://memlayer.online/docs">API Docs</a> ·
-        <a href="mailto:sunvictor567@gmail.com">Support</a>
+        <a href="https://docs.remem.online">API Docs</a> ·
+        <a href="mailto:support@remem.online">Support</a>
     </p>
 
-    <p>— Victor, MemLayer</p>
+    <p>— Victor, Remem</p>
     """

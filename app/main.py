@@ -23,13 +23,13 @@ def _rate_limit_exception_handler(request: Request, exc: Exception) -> Response:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print(f"🧠 MaaS starting up [{settings.app_env}]")
+    print(f"🧠 Remem starting up [{settings.app_env}]")
     yield
-    print("MaaS shutting down.")
+    print("Remem shutting down.")
 
 
 app = FastAPI(
-    title="Memory-as-a-Service (MaaS)",
+    title="Remem - Memory-as-a-Service",
     description="Persistent memory API for AI agents. One key. Five endpoints.",
     version="1.0.0",
     lifespan=lifespan,
