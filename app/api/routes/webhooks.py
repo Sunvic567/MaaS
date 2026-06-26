@@ -116,7 +116,7 @@ async def _create_tenant_and_notify(
         # Check if tenant already exists — handle renewals
         existing = await asyncio.to_thread(
             lambda: db.table("tenants")
-            .select("id, plan")
+            .select("tenant_id, plan")
             .eq("email", email)
             .execute()
         )
@@ -124,11 +124,11 @@ async def _create_tenant_and_notify(
         existing_rows = cast(list[dict[str, Any]], existing.data or [])
         if existing_rows:
             # Existing tenant — just upgrade their plan
-            tenant_id = existing_rows[0]["id"]
+            tenant_id = existing_rows[0]["tenant_id"]
             await asyncio.to_thread(
                 lambda: db.table("tenants")
                 .update({"plan": plan, "is_suspended": False})
-                .eq("id", tenant_id)
+                .eq("tenant_id", tenant_id)
                 .execute()
             )
             logger.info("Upgraded existing tenant %s to %s", email, plan)
@@ -158,7 +158,7 @@ async def _create_tenant_and_notify(
             }).execute()
         )
         tenant_rows = cast(list[dict[str, Any]], tenant_result.data or [])
-        tenant_id = tenant_rows[0]["id"]
+        tenant_id = tenant_rows[0]["tenant_id"]
 
         # Insert API key
         await asyncio.to_thread(

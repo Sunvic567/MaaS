@@ -21,7 +21,7 @@ CREATE EXTENSION IF NOT EXISTS vector;   -- pgvector: embeddings
 --  One row per developer / company using your API.
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS tenants (
-  id                 UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  tenant_id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   name               TEXT        NOT NULL,
   email              TEXT        NOT NULL UNIQUE,
   plan               TEXT        NOT NULL DEFAULT 'free'
@@ -52,7 +52,7 @@ COMMENT ON COLUMN tenants.byod_supabase_key IS 'Store AES-encrypted — never pl
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS api_keys (
   id           UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id    UUID        NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  tenant_id    UUID        NOT NULL REFERENCES tenants(tenant_id) ON DELETE CASCADE,
   key_hash     TEXT        NOT NULL UNIQUE,   -- SHA-256(raw_key)
   name         TEXT,                          -- e.g. "production", "staging"
   is_active    BOOLEAN     NOT NULL DEFAULT TRUE,
@@ -70,7 +70,7 @@ COMMENT ON COLUMN api_keys.key_hash IS 'SHA-256 hex digest of the raw maas_live_
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS memories (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id     UUID        NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  tenant_id     UUID        NOT NULL REFERENCES tenants(tenant_id) ON DELETE CASCADE,
   user_id       TEXT        NOT NULL,         -- end-user the agent is serving
   agent_id      TEXT        NOT NULL,         -- which agent stored this memory
   content       TEXT        NOT NULL CHECK (char_length(content) BETWEEN 1 AND 10000),
@@ -100,7 +100,7 @@ COMMENT ON COLUMN memories.expires_at   IS 'NULL means permanent. Set via ttl_da
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS usage_logs (
   id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
-  tenant_id   UUID        NOT NULL REFERENCES tenants(id) ON DELETE CASCADE,
+  tenant_id   UUID        NOT NULL REFERENCES tenants(tenant_id) ON DELETE CASCADE,
   endpoint    TEXT        NOT NULL,           -- e.g. POST /memories, GET /memories/search
   tokens_used INT         NOT NULL DEFAULT 0, -- embedding tokens consumed
   latency_ms  INT,                            -- total response time
@@ -163,7 +163,7 @@ ALTER TABLE usage_logs ENABLE ROW LEVEL SECURITY;
 -- tenants: only see your own row
 CREATE POLICY tenants_isolation ON tenants
   FOR ALL
-  USING (id = current_setting('app.tenant_id', TRUE)::UUID);
+  USING (tenant_id = current_setting('app.tenant_id', TRUE)::UUID);
 
 -- api_keys: only see your own keys
 CREATE POLICY api_keys_isolation ON api_keys
@@ -261,7 +261,7 @@ SELECT cron.schedule(
 
 CREATE OR REPLACE VIEW tenant_usage AS
 SELECT
-  t.id                                              AS tenant_id,
+  t.tenant_id                                        AS tenant_id,
   t.plan,
   t.is_suspended,
 
@@ -287,9 +287,9 @@ SELECT
   END                                               AS daily_request_limit
 
 FROM tenants t
-LEFT JOIN memories   m  ON m.tenant_id  = t.id
-LEFT JOIN usage_logs ul ON ul.tenant_id = t.id
-GROUP BY t.id, t.plan, t.is_suspended;
+LEFT JOIN memories   m  ON m.tenant_id  = t.tenant_id
+LEFT JOIN usage_logs ul ON ul.tenant_id = t.tenant_id
+GROUP BY t.tenant_id, t.plan, t.is_suspended;
 
 COMMENT ON VIEW tenant_usage IS
   'Live usage snapshot per tenant. Query before each request to enforce plan limits.';
