@@ -39,7 +39,7 @@ def _send_email(email: str, subject: str, body: str) -> None:
 
 def _welcome_email(name: str, api_key: str, plan: str) -> str:
     return f"""
-    <h2>Welcome to MemLayer, {name}!</h2>
+    <h2>Welcome to Remem, {name}!</h2>
     <p>Your API key is ready. Keep it safe — it won't be shown again.</p>
 
     <code style="
@@ -78,7 +78,7 @@ client.remember("User prefers dark mode", user_id="u1", agent_id="bot")
 def _upgrade_email(name: str, plan: str) -> str:
     return f"""
     <h2>Plan upgraded, {name}!</h2>
-    <p>Your MemLayer account has been upgraded to <strong>{plan.title()}</strong>.</p>
+    <p>Your Remem account has been upgraded to <strong>{plan.title()}</strong>.</p>
     <p>Your existing API key works immediately with your new limits.</p>
 
     <p>
