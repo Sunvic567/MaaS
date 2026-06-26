@@ -144,7 +144,7 @@ async def _create_tenant_and_notify(
             return
 
         # New tenant — create everything
-        raw_key  = f"ml_{secrets.token_urlsafe(32)}"
+        raw_key  = f"rm_{secrets.token_urlsafe(32)}"
         key_hash = _hash_key(raw_key)
 
         # Insert tenant

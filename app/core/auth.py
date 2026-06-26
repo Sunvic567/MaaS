@@ -15,10 +15,10 @@ async def get_current_tenant(
     Validate API key and return tenant config.
     Called as a dependency on every protected endpoint.
     """
-    if not api_key.startswith("fm_"):
+    if not api_key.startswith("rm_"):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid API key format. Keys must start with 'fm_'",
+            detail="Invalid API key format. Keys must start with 'rm_'",
         )
 
     db = get_master_client()
@@ -51,13 +51,6 @@ async def get_current_tenant(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Account suspended. Contact support.",
         )
-
-    # Backwards compatibility: if DB returns `tenant_id`, also expose `id`.
-    try:
-        if "tenant_id" in tenant and "id" not in tenant:
-            tenant["id"] = tenant.get("tenant_id")
-    except Exception:
-        pass
 
     return tenant
 
