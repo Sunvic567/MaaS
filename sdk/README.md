@@ -15,7 +15,7 @@ from remem import RememClient
 
 client = RememClient(
     api_key="remem_live_xxx",
-    base_url="https://remem.online",
+    base_url="https://dev.`remem.online",
 )
 
 result = client.remember(
@@ -240,7 +240,7 @@ Full API reference at [memlayer.online/docs](https://memlayer.online/docs).
 
 ## Links
 
-- [Website](https://memlayer.online)
+- [Website](https://dev.memlayer.online)
 - [API Docs](https://doc.memlayer.online)
 - [GitHub](https://github.com/sunvic567/memlayer)
 - [Report a Bug](https://github.com/sunvic567/memlayer/issues)

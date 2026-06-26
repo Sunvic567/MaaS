@@ -1,128 +1,325 @@
-# MemLayer
+# Remem
 
-**MemLayer** is a FastAPI backend plus Python SDK for persistent memory in AI agents.
+> Your AI agent forgets every user. Every session. Remem fixes that.
 
-- `app/` contains the backend API and webhook handlers.
-- `sdk/` contains the `memlayer-py` Python SDK for storing, recalling, and managing memories.
-
-## Project overview
-
-MemLayer stores user-specific memories for agents so they can recall preferences, context, and facts across conversations.
-
-Key capabilities:
-- Store memories with `user_id` + `agent_id`
-- Search memories by semantic similarity + recency + importance
-- Keep session context consistent across requests
-- Wipe, update, and deduplicate memories
-- Support free signups and payment webhooks via Flutterwave
-- Send API keys by email using Resend
-
-## Repository structure
-
-- `app/` — FastAPI application
-  - `api/` — route modules
-  - `core/` — config, auth, and error handling
-  - `db/` — Supabase client and migration SQL
-  - `services/` — memory, email, embeddings business logic
-- `sdk/` — Python SDK package for consuming MemLayer
-- `tests/` — backend tests
-- `.env` — local environment variables
-- `pyproject.toml` — backend dependencies and metadata
-
-## Running the backend locally
-
-1. Copy `.env` and fill in your keys:
-
-```env
-SUPABASE_URL=<your-supabase-url>
-SUPABASE_SERVICE_KEY=<your-service-role-key>
-OPENAI_API_KEY=<your-openai-key>
-MAAS_MASTER_KEY=<master-key>
-FLUTTERWAVE_SECRET_HASH=<flutterwave-secret-hash>
-RESEND_API_KEY=<your-resend-key>
-RESEND_FROM_EMAIL=support@memlayer.online
-ENVIRONMENT=development
-```
-
-2. Install dependencies:
-
-```bash
-py -3 -m pip install -r requirements.txt
-```
-
-3. Start the app:
-
-```bash
-py -3 -m uvicorn app.main:app --reload
-```
-
-4. Open the API docs:
-
-- `http://127.0.0.1:8000/docs`
-- `http://127.0.0.1:8000/redoc`
-
-## API endpoints
-
-- `POST /memories` — Store a memory
-- `GET /memories/search` — Search memories
-- `GET /memories/context` — Load session context
-- `GET /memories` — List memories
-- `PATCH /memories/{memory_id}` — Update a memory
-- `DELETE /memories/{memory_id}` — Delete a memory
-- `DELETE /memories` — Wipe memories
-- `POST /webhooks/signup/free` — Free signup webhook
-- `POST /webhooks/flutterwave` — Payment webhook
-- `POST /admin/tenants` — Create a tenant via master key
-
-## SDK package
-
-The SDK is packaged in `sdk/` as `memlayer-py`. Use it for client-side storage and retrieval.
-
-For SDK usage, see `sdk/README.md`.
-
-## Notes
-
-- The webhook route `POST /webhooks/flutterwave` is a notification endpoint, not a checkout redirect.
-- Resend requires the sending domain to be verified. Set `RESEND_FROM_EMAIL` to a verified address in `.env`.
-- The backend uses Supabase for tenancy, storage, and vector search.
-
-## Contributing
-
-1. Fork the repo
-2. Create a branch
-3. Make your changes
-4. Submit a pull request
+[![PyPI version](https://badge.fury.io/py/remem-py.svg)](https://badge.fury.io/py/remem-py)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 ---
 
-## License
+## What is Remem?
 
-MIT License
+Remem is a memory API for AI agents.
 
+You call one method to store what your agent learns. You call another to get it back. That's it. Remem handles the embedding, storage, retrieval, and ranking — so you don't have to.
+
+**Without Remem**, your agent starts from zero every session:
+- Asks the user their name again
+- Forgets their preferences
+- Repeats questions it already asked last week
+
+**With Remem**, your agent picks up exactly where it left off — every time.
+
+---
+
+## Why Remem over everything else?
+
+Most memory solutions return the most *similar* memory. Remem returns the most *useful* one.
+
+The difference is hybrid scoring:
+
+```
+final score = 70% semantic relevance
+            + 20% recency          ← newer memories rank higher
+            + 10% importance       ← you control what matters
+```
+
+Every result also includes `score_detail` — a breakdown showing exactly why each memory ranked where it did. No black box. No guessing why your agent pulled the wrong memory.
+
+---
+
+## Install
+
+```bash
+pip install remem-py
+```
+
+---
+
+## 30-Second Quick Start
+
+```python
+from remem import RememClient
+
+client = RememClient(
+    api_key="rm_live_xxx",
+    base_url="https://api.remem.online",
+)
+
+# 1. Store what your agent learns
+client.remember(
+    "User prefers short bullet points over long paragraphs",
+    user_id="user_123",
+    agent_id="support_bot",
+)
+
+# 2. Get context at the start of every session
+context = client.context(user_id="user_123", agent_id="support_bot")
+
+# 3. Search when the user asks something
+memories = client.recall(
+    "what are this user's preferences?",
+    user_id="user_123",
+    agent_id="support_bot",
+)
+
+for m in memories:
+    print(f"[{m.score:.3f}] {m.content}")
+# [0.891] User prefers short bullet points over long paragraphs
+```
+
+---
+
+## Get an API Key
+
+1. Go to [remem.online](https://remem.online)
+2. Sign up — free, no credit card
+3. Check your email for your key (`rm_live_xxx`)
+
+Free plan: 500 memories, 100 requests/day. Enough to build and test your agent fully.
+
+---
+
+## The Three Methods You'll Use Most
+
+### `remember()` — Store a memory
+
+```python
+result = client.remember(
+    content="User is based in Lagos, Nigeria",
+    user_id="user_123",
+    agent_id="support_bot",
+
+    # Optional
+    memory_type="semantic",  # episodic | semantic | summary
+    importance=0.9,          # 0.0 (low) → 1.0 (high). Default: 0.5
+    ttl_days=30,             # auto-delete after 30 days. Default: never
+)
+
+print(result.id)              # UUID of the stored memory
+print(result.is_duplicate)    # True if this memory already exists
+```
+
+**When to use each memory type:**
+
+| Type | Use for | Example |
+|---|---|---|
+| `episodic` | Things that happened | "User complained about slow delivery" |
+| `semantic` | Facts about the user | "User is in Lagos, Nigeria" |
+| `summary` | Auto-compressed old memories | Generated by Remem automatically |
+
+---
+
+### `recall()` — Search semantically
+
+```python
+memories = client.recall(
+    query="where does this user live?",
+    user_id="user_123",
+    agent_id="support_bot",
+
+    # Optional
+    top_k=5,           # how many to return. Default: 5
+    min_score=0.70,    # minimum relevance. Default: 0.70. Use 0.0 to return everything
+    memory_type="semantic",  # filter by type. Default: all types
+)
+
+for m in memories:
+    print(m.content)       # "User is based in Lagos, Nigeria"
+    print(m.score)         # 0.891 — the hybrid score
+    print(m.score_detail)  # {"cosine": 0.89, "recency": 0.94, "importance": 0.90, "final": 0.891}
+```
+
+The query `"where does this user live?"` found `"User is based in Lagos, Nigeria"` even though the words don't match. That's semantic search working.
+
+`score_detail` shows you exactly why each memory ranked where it did. If the wrong memory is coming back, check the breakdown — it tells you whether cosine, recency, or importance is pulling it up.
+
+---
+
+### `context()` — Load session context
+
+```python
+# Call this at the start of every conversation
+# before the user says anything
+context = client.context(
+    user_id="user_123",
+    agent_id="support_bot",
+    top_k=10,
+
+    # Pass the user's first message for smarter retrieval
+    current_message="I need help with my order",  # optional
+)
+
+# Inject into your system prompt
+memory_text = "\n".join(f"- {m.content}" for m in context.memories)
+
+system_prompt = f"""You are a helpful assistant.
+
+What you already know about this user:
+{memory_text if memory_text else "Nothing yet — this is a new user."}
+
+Use this to give personalised responses.
+Never ask for information you already know."""
+```
+
+Without `current_message` — returns memories sorted by importance and recency.
+With `current_message` — uses semantic search to return the most relevant memories for what the user is about to ask.
+
+---
+
+## All Available Methods
+
+```python
+# Store
+client.remember(content, user_id, agent_id, **kwargs)
+
+# Retrieve
+client.recall(query, user_id, agent_id, **kwargs)
+client.context(user_id, agent_id, **kwargs)
+client.list(user_id, agent_id, limit=20, offset=0)
+
+# Update
+client.update(memory_id, user_id, agent_id, new_content, **kwargs)
+
+# Delete
+client.forget(memory_id, user_id, agent_id)
+client.forget_all(user_id, agent_id)
+
+# Check
+client.is_duplicate(content, user_id, agent_id, threshold=0.95)
+```
+
+---
+
+## Handling Conflicting Memories
+
+When a fact changes — user moves cities, changes preferences — update the old memory instead of storing a new one alongside it:
+
+```python
+# Find the outdated memory
+memories = client.recall(
+    "where does this user live",
+    user_id="user_123",
+    agent_id="support_bot",
+    top_k=1,
+)
+
+# Update it in place — same ID, new content, re-embedded
+if memories:
+    client.update(
+        memory_id=memories[0].id,
+        user_id="user_123",
+        agent_id="support_bot",
+        new_content="User moved from Lagos to Abuja, Nigeria",
+        importance=0.95,
+    )
+```
+
+Never store a new memory alongside a conflicting old one. Two memories saying different things will confuse your agent. Update in place — one clean fact.
+
+---
+
+## Async Support
+
+For LangGraph, FastAPI, and any async application:
+
+```python
+from remem import AsyncRememClient
+
+async def main():
+    async with AsyncRememClient(api_key="rm_live_xxx") as client:
+
+        await client.remember(
+            "User prefers dark mode",
+            user_id="user_123",
+            agent_id="support_bot",
+        )
+
+        memories = await client.recall(
+            "UI preferences",
+            user_id="user_123",
+            agent_id="support_bot",
+        )
+```
+
+---
+
+## LangGraph Integration
+
+Add two nodes to your graph — load memory before the agent runs, save memory after it responds:
+
+```python
+import os
+from remem import AsyncRememClient
+from langgraph.graph import StateGraph, END
+from typing import TypedDict, Annotated
+from langgraph.graph.message import add_messages
+
+remem = AsyncRememClient(api_key=os.getenv("REMEM_API_KEY"))
+AGENT_ID = "my_agent"
+
+
+class State(TypedDict):
+    messages:       Annotated[list, add_messages]
+    user_id:        str
+    memory_context: str
+
+
+async def load_memory(state: State) -> State:
+    """Load memories before the agent responds."""
+    last_message = state["messages"][-1].content
+
+    memories = await remem.recall(
+        query=last_message,
+        user_id=state["user_id"],
+        agent_id=AGENT_ID,
+        top_k=5,
+    )
+
+    state["memory_context"] = "\n".join(
+        f"- {m.content}" for m in memories
+    )
     return state
 
 
-async def save_memory(state: MessagesState):
-    """Save what the agent learned after responding."""
-    last_message = state["messages"][-1].content
+async def save_memory(state: State) -> State:
+    """Save the user's message after the agent responds."""
+    last_user_message = [
+        m for m in state["messages"]
+        if hasattr(m, "type") and m.type == "human"
+    ][-1].content
 
-    await maas.remember(
-        content=last_message,
+    await remem.remember(
+        content=last_user_message,
         user_id=state["user_id"],
-        agent_id="my_agent",
+        agent_id=AGENT_ID,
         memory_type="episodic",
     )
     return state
 
 
 # Wire into your graph
-builder = StateGraph(MessagesState)
+builder = StateGraph(State)
 builder.add_node("load_memory", load_memory)
-builder.add_node("agent", your_agent_node)
+builder.add_node("agent",       your_agent_node)
 builder.add_node("save_memory", save_memory)
-
+builder.set_entry_point("load_memory")
 builder.add_edge("load_memory", "agent")
-builder.add_edge("agent", "save_memory")
+builder.add_edge("agent",       "save_memory")
+builder.add_edge("save_memory", END)
+
+graph = builder.compile()
 ```
 
 ---
@@ -130,37 +327,30 @@ builder.add_edge("agent", "save_memory")
 ## Error Handling
 
 ```python
-from memlayer import (
-    MemLayerClient,
-    AuthenticationError,
-    PlanLimitError,
-    MemoryNotFoundError,
-    DuplicateMemoryError,
-    MemLayerError,
+from remem import (
+    RememClient,
+    AuthenticationError,   # 401 — bad API key
+    PlanLimitError,        # 402 — hit memory limit
+    MemoryNotFoundError,   # 404 — memory ID doesn't exist
+    DuplicateMemoryError,  # 409 — duplicate detected
+    RememError,            # base — catches everything else
 )
 
-client = MemLayerClient(api_key="ml_live_xxx")
+client = RememClient(api_key="rm_live_xxx")
 
 try:
-    result = client.remember(
-        "User prefers dark mode",
-        user_id="user_123",
-        agent_id="support_bot",
-    )
+    client.remember("User is in Lagos", user_id="u1", agent_id="bot")
 
 except AuthenticationError:
-    print("Invalid API key — check your ml_live_xxx key")
+    print("Check your API key at remem.online")
 
 except PlanLimitError:
-    print("Memory limit reached — upgrade your plan at memlayer.online")
+    print("Memory limit reached — upgrade at remem.online/pricing")
 
 except DuplicateMemoryError:
-    print("This memory already exists — skipped")
+    pass  # already stored — safe to ignore
 
-except MemoryNotFoundError:
-    print("Memory ID not found")
-
-except MemLayerError as e:
+except RememError as e:
     print(f"API error {e.status_code}: {e.detail}")
 ```
 
@@ -170,13 +360,39 @@ except MemLayerError as e:
 
 ```python
 # Sync
-with MemLayerClient(api_key="ml_live_xxx") as client:
+with RememClient(api_key="rm_live_xxx") as client:
     client.remember("something", user_id="u1", agent_id="bot")
 
 # Async
-async with AsyncMemLayerClient(api_key="ml_live_xxx") as client:
+async with AsyncRememClient(api_key="rm_live_xxx") as client:
     await client.remember("something", user_id="u1", agent_id="bot")
 ```
+
+---
+
+## REST API
+
+Don't want the SDK? Every method maps to a direct HTTP call:
+
+```bash
+# Store
+curl -X POST https://api.remem.online/memories \
+  -H "X-API-Key: rm_live_xxx" \
+  -H "Content-Type: application/json" \
+  -d '{"content": "User prefers dark mode", "user_id": "u1", "agent_id": "bot"}'
+
+# Search
+curl "https://api.remem.online/memories/search\
+?query=ui+preferences&user_id=u1&agent_id=bot&min_score=0.0" \
+  -H "X-API-Key: rm_live_xxx"
+
+# Context
+curl "https://api.remem.online/memories/context\
+?user_id=u1&agent_id=bot" \
+  -H "X-API-Key: rm_live_xxx"
+```
+
+Full reference at [docs.remem.online](https://docs.remem.online).
 
 ---
 
@@ -188,41 +404,17 @@ async with AsyncMemLayerClient(api_key="ml_live_xxx") as client:
 | Pro | 50,000 | 10,000 | $19/mo |
 | Enterprise | Unlimited | Unlimited | $99+/mo |
 
-Enterprise includes BYOD (Bring Your Own Database) — your data never leaves your Supabase instance.
-
----
-
-## REST API
-
-You don't need the SDK — every method maps to a REST endpoint:
-
-```bash
-# Store
-curl -X POST https://memlayer.online/memories \
-  -H "X-API-Key: ml_live_xxx" \
-  -H "Content-Type: application/json" \
-  -d '{"content": "User prefers dark mode", "user_id": "u1", "agent_id": "bot"}'
-
-# Search
-curl "https://memlayer.online/memories/search?query=preferences&user_id=u1&agent_id=bot" \
-  -H "X-API-Key: ml_live_xxx"
-
-# Context
-curl "https://memlayer.online/memories/context?user_id=u1&agent_id=bot" \
-  -H "X-API-Key: ml_live_xxx"
-```
-
-Full API reference at [memlayer.online/docs](https://memlayer.online/docs).
+Enterprise includes BYOD — connect your own Supabase instance. Your data never leaves your servers.
 
 ---
 
 ## Links
 
-- [Website](https://memlayer.online)
-- [API Docs](https://doc.memlayer.online)
-- [GitHub](https://github.com/sunvic67/memlayer)
-- [Report a Bug](https://github.com/sunvic67/memlayer/issues)
-- [Email](mailto:support@memlayer.online)
+- [Website](https://dev.remem.online)
+- [Docs](https://docs.remem.online)
+- [API Reference](https://docs.remem.online/api-reference)
+- [GitHub](https://github.com/sunvic57/remem)
+- [support@remem.online](mailto:support@remem.online)
 
 ---
 
