@@ -1,4 +1,4 @@
-from sdk.remem.client import (
+from remem.client import (
     RememClient,
     AsyncRememClient,
     Memory,

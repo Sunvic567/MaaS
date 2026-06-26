@@ -13,9 +13,9 @@ setup(
     author_email="sunvictor567@gmail.com",
     url="https://github.com/sunvic567/remem",
     project_urls={
-        "Documentation": "https://memlayer.online/docs",
+        "Documentation": "https://remem.online/docs",
         "Bug Tracker":   "https://github.com/sunvic567/remem/issues",
-        "Homepage":      "https://dev.remem.online",
+        "Homepage":      "https://remem.online",
     },
     license="MIT",
     packages=find_packages(),    # ← removed where="sdk"

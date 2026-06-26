@@ -1,21 +1,21 @@
-# memlayer-py
+# remem-py
 
-A lightweight Python SDK for MemLayer: persistent memory storage and retrieval for AI agents.
+A lightweight Python SDK for Remem: persistent memory storage and retrieval for AI agents.
 
 ## Install
 
 ```bash
-pip install memlayer-py
+pip install Remem-py
 ```
 
 ## Quick Start
 
 ```python
-from memlayer import MemLayerClient
+from remem import RememClient
 
-client = MemLayerClient(
-    api_key="ml_live_xxx",
-    base_url="https://memlayer.online",
+client = RememClient(
+    api_key="remem_live_xxx",
+    base_url="https://remem.online",
 )
 
 result = client.remember(
@@ -45,17 +45,17 @@ Use `MemLayerClient` for synchronous applications:
 ```python
 from memlayer import MemLayerClient
 
-client = MemLayerClient(api_key="ml_live_xxx")
+client = RememClient(api_key="rm_live_xxx")
 ```
 
 ### Async client
 
-Use `AsyncMemLayerClient` for async apps and frameworks like FastAPI:
+Use `AsyncRememClient` for async apps and frameworks like FastAPI:
 
 ```python
-from memlayer import AsyncMemLayerClient
+from remem import AsyncRememClient
 
-async with AsyncMemLayerClient(api_key="ml_live_xxx") as client:
+async with AsyncRememClient(api_key="ml_live_xxx") as client:
     await client.remember(
         "User prefers concise responses",
         user_id="user_123",
