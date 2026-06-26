@@ -1,12 +1,12 @@
 ---
 title: Search Memories
-api: GET https://memlayer.online/memories/search
+api: GET https://api.remem.online/memories/search
 description: Semantic search — returns the most relevant memories for a query.
 ---
 
 ## Overview
 
-Find memories using natural language. You don't need to match exact words — MemLayer understands meaning. Ask "where does this user live?" and it finds "User is based in Lagos, Nigeria" even though none of the words overlap.
+Find memories using natural language. You don't need to match exact words — Remem understands meaning. Ask "where does this user live?" and it finds "User is based in Lagos, Nigeria" even though none of the words overlap.
 
 Results are ranked by hybrid scoring: **70% semantic relevance + 20% recency + 10% importance.**
 
@@ -18,7 +18,7 @@ Results are ranked by hybrid scoring: **70% semantic relevance + 20% recency + 1
 
 | Name | Required | Description |
 |------|----------|-------------|
-| `X-API-Key` | Yes | Your MemLayer API key |
+| `X-API-Key` | Yes | Your Remem API key |
 
 ### Query Parameters
 
@@ -33,13 +33,13 @@ Results are ranked by hybrid scoring: **70% semantic relevance + 20% recency + 1
 
 <CodeGroup>
 ```bash curl
-curl "https://memlayer.online/memories/search?\
+curl "https://api.remem.online/memories/search?\
 query=what+does+this+user+prefer&\
 user_id=user_123&\
 agent_id=support_bot&\
 top_k=5&\
 min_score=0.70" \
-  -H "X-API-Key: ml_live_xxx"
+  -H "X-API-Key: rm_live_xxx"
 ```
 
 ```python Python SDK
@@ -59,8 +59,8 @@ for m in memories:
 import httpx
 
 resp = httpx.get(
-    "https://memlayer.online/memories/search",
-    headers={"X-API-Key": "ml_live_xxx"},
+    "https://api.remem.online/memories/search",
+    headers={"X-API-Key": "rm_live_xxx"},
     params={
         "query":    "what does this user prefer?",
         "user_id":  "user_123",

@@ -5,11 +5,11 @@ description: Store and retrieve your first memory in under 5 minutes.
 
 ## Step 1 — Get an API Key
 
-<Card title="Get Your Free API Key" icon="key" href="https://memlayer.online">
-  Sign up at memlayer.online — free plan includes 500 memories and 100 requests per day.
+<Card title="Get Your Free API Key" icon="key" href="https://remem.online">
+  Sign up at remem.online — free plan includes 500 memories and 100 requests per day.
 </Card>
 
-Your key looks like this: `ml_live_xxxxxxxxxxxxxxxxxxxx`
+Your key looks like this: `rm_live_xxxxxxxxxxxxxxxxxxxx`
 
 <Warning>
   Keep your API key safe. It's shown once when created. If you lose it, you'll need a new one.
@@ -21,11 +21,11 @@ Your key looks like this: `ml_live_xxxxxxxxxxxxxxxxxxxx`
 
 <CodeGroup>
 ```bash Python
-pip install memlayer-py
+pip install remem-py
 ```
 
 ```bash npm (coming soon)
-npm install memlayer
+npm install remem
 ```
 </CodeGroup>
 
@@ -34,11 +34,11 @@ npm install memlayer
 ## Step 3 — Store Your First Memory
 
 ```python
-from memlayer import MemLayerClient
+from remem import RememClient
 
-client = MemLayerClient(
-    api_key="ml_live_xxx",
-    base_url="https://memlayer.online",
+client = RememClient(
+    api_key="rm_live_xxx",
+    base_url="https://api.remem.online",
 )
 
 result = client.remember(
@@ -53,7 +53,7 @@ print(result.id)  # 775263ee-73af-4416-9804-1f274048ae08
 ```
 
 <Check>
-  You just stored your first memory. MemLayer embedded the text and saved it to your account.
+  You just stored your first memory. Remem embedded the text and saved it to your account.
 </Check>
 
 ---

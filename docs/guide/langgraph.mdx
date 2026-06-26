@@ -6,7 +6,7 @@ description: Add persistent memory to any LangGraph agent.
 ## Installation
 
 ```bash
-pip install memlayer-py langgraph langchain-openai
+pip install remem-py langgraph langchain-openai
 ```
 
 ---
@@ -28,9 +28,9 @@ from langgraph.graph import StateGraph, END
 from langgraph.graph.message import add_messages
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage
-from memlayer import AsyncMemLayerClient
+from remem import AsyncRememClient
 
-memory = AsyncMemLayerClient(api_key=os.getenv("MEMLAYER_API_KEY"))
+memory = AsyncRememClient(api_key=os.getenv("REMEM_API_KEY"))
 llm    = ChatOpenAI(model="gpt-4o-mini")
 AGENT_ID = "langgraph_agent"
 

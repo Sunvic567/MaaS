@@ -4,9 +4,9 @@ description: Persistent memory for AI agents. One API key. Your agent remembers 
 A lightweight, framework-agnostic memory API where users and companies truly own, inspect, export, and govern their agent memory.
 ---
 
-## What is MemLayer?
+## What is Remem?
 
-MemLayer is a memory API for AI agents. It gives your agent persistent memory across conversations — so it remembers users, learns their preferences, and never asks the same question twice.
+Remem is a memory API for AI agents. It gives your agent persistent memory across conversations — so it remembers users, learns their preferences, and never asks the same question twice.
 
 <CardGroup cols={2}>
   <Card title="Quick Start" icon="bolt" href="/quickstart">
@@ -16,7 +16,7 @@ MemLayer is a memory API for AI agents. It gives your agent persistent memory ac
     Full endpoint documentation
   </Card>
   <Card title="Python SDK" icon="python" href="/sdk/python">
-    pip install memlayer-py
+    pip install remem-py
   </Card>
   <Card title="LangGraph Guide" icon="diagram-project" href="/guides/langgraph">
     Integrate with your LangGraph agent
@@ -25,7 +25,7 @@ MemLayer is a memory API for AI agents. It gives your agent persistent memory ac
 
 ---
 
-## The Problem MemLayer Solves
+## The Problem Remem Solves
 
 Every time a user starts a new conversation with your AI agent, it starts from zero.
 
@@ -37,7 +37,7 @@ It doesn't remember:
 
 You're either stuffing conversation history into the system prompt and hitting token limits — or your agent keeps asking the same questions over and over.
 
-**MemLayer fixes that.**
+**Remem fixes that.**
 
 ---
 
@@ -45,13 +45,13 @@ You're either stuffing conversation history into the system prompt and hitting t
 
 <Steps>
   <Step title="Store">
-    When your agent learns something about a user, call `store_memory()`. MemLayer embeds the text and saves it.
+    When your agent learns something about a user, call `remember()`. Remem embeds the text and saves it.
   </Step>
   <Step title="Retrieve">
-    At the start of every session, call `get_context()`. MemLayer returns the most relevant memories before the user says a word.
+    At the start of every session, call `context()`. Remem returns the most relevant memories before the user says a word.
   </Step>
   <Step title="Search">
-    When the user asks something, call `search_memories()`. MemLayer returns memories ranked by semantic relevance, recency, and importance.
+    When the user asks something, call `recall()`. Remem returns memories ranked by semantic relevance, recency, and importance.
   </Step>
 </Steps>
 
@@ -61,13 +61,13 @@ You're either stuffing conversation history into the system prompt and hitting t
 
 <AccordionGroup>
   <Accordion title="Semantic Search">
-    Find the right memory for any query — not just exact keyword matches. MemLayer uses OpenAI embeddings to understand meaning, not just words. Ask "where does this user live?" and it finds "User is based in Lagos, Nigeria" even if the word "live" never appears in the memory.
+    Find the right memory for any query — not just exact keyword matches. Remem uses OpenAI embeddings to understand meaning, not just words. Ask "where does this user live?" and it finds "User is based in Lagos, Nigeria" even if the word "live" never appears in the memory.
   </Accordion>
   <Accordion title="Hybrid Scoring">
     Results are ranked by a combination of semantic relevance (70%), recency (20%), and importance (10%). A memory stored today ranks higher than an identical one from 6 months ago.
   </Accordion>
   <Accordion title="Duplicate Detection">
-    MemLayer automatically detects near-identical memories before storing. No more storing "User is in Lagos" 50 times across 50 sessions.
+    Remem automatically detects near-identical memories before storing. No more storing "User is in Lagos" 50 times across 50 sessions.
   </Accordion>
   <Accordion title="TTL Expiry">
     Set memories to auto-expire after N days. Temporary session context disappears automatically — no manual cleanup needed.

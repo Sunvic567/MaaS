@@ -1,14 +1,14 @@
 ---
 title: Get Context
-api: GET https://memlayer.online/memories/context
+api: GET https://api.remem.online/memories/context
 description: Load the most relevant memories at session start.
 ---
 
 ## Overview
 
-Call this at the beginning of every conversation — before the user says anything. MemLayer returns the most important and recent memories for this user so your agent already knows who they are.
+Call this at the beginning of every conversation — before the user says anything. Remem returns the most important and recent memories for this user so your agent already knows who they are.
 
-If you pass `current_message`, MemLayer uses semantic search to return memories most relevant to what the user just said. Otherwise it returns memories sorted by importance and recency.
+If you pass `current_message`, Remem uses semantic search to return memories most relevant to what the user just said. Otherwise it returns memories sorted by importance and recency.
 
 ---
 
@@ -18,7 +18,7 @@ If you pass `current_message`, MemLayer uses semantic search to return memories 
 
 | Name | Required | Description |
 |------|----------|-------------|
-| `X-API-Key` | Yes | Your MemLayer API key |
+| `X-API-Key` | Yes | Your Remem API key |
 
 ### Query Parameters
 
@@ -32,15 +32,15 @@ If you pass `current_message`, MemLayer uses semantic search to return memories 
 <CodeGroup>
 ```bash curl
 # Without current message — sorted by importance + recency
-curl "https://memlayer.online/memories/context?\
+curl "https://api.remem.online/memories/context?\
 user_id=user_123&agent_id=support_bot&top_k=10" \
-  -H "X-API-Key: ml_live_xxx"
+  -H "X-API-Key: rm_live_xxx"
 
 # With current message — semantic retrieval
-curl "https://memlayer.online/memories/context?\
+curl "https://api.remem.online/memories/context?\
 user_id=user_123&agent_id=support_bot&\
 current_message=I+need+help+with+my+order" \
-  -H "X-API-Key: ml_live_xxx"
+  -H "X-API-Key: rm_live_xxx"
 ```
 
 ```python Python SDK

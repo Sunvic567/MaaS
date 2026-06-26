@@ -1,5 +1,5 @@
 {
-  "name": "MemLayer",
+  "name": "Remem",
   "logo": {
     "light": "/logo/light.png",
     "dark":  "/logo/dark.png"
@@ -16,12 +16,12 @@
   "topbarLinks": [
     {
       "name": "Get API Key",
-      "url":  "https://memlayer.online#signup"
+      "url":  "https://remem.online#signup"
     }
   ],
   "topbarCtaButton": {
     "name": "Get Started Free",
-    "url":  "https://memlayer.online#signup"
+    "url":  "https://remem.online#signup"
   },
   "tabs": [
     {
@@ -83,7 +83,7 @@
     }
   ],
   "footerSocials": {
-    "github":   "https://github.com/yourusername/memlayer",
+    "github":   "https://github.com/yourusername/remem",
     "twitter":  "https://twitter.com/yourhandle"
   }
 }

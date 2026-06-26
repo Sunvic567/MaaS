@@ -1,6 +1,6 @@
 ---
 title: Delete Memory
-api: DELETE https://memlayer.online/memories/{memory_id}
+api: DELETE https://api.remem.online/memories/{memory_id}
 description: Delete a single memory by ID.
 ---
 
@@ -16,7 +16,7 @@ Surgically remove one specific memory. The `user_id` and `agent_id` must match t
 
 | Name | Required | Description |
 |------|----------|-------------|
-| `X-API-Key` | Yes | Your MemLayer API key |
+| `X-API-Key` | Yes | Your Remem API key |
 
 ### Path Parameters
 
@@ -34,9 +34,9 @@ Surgically remove one specific memory. The `user_id` and `agent_id` must match t
 <CodeGroup>
 ```bash curl
 curl -X DELETE \
-  "https://memlayer.online/memories/775263ee-73af-4416-9804-1f274048ae08?\
+  "https://api.remem.online/memories/775263ee-73af-4416-9804-1f274048ae08?\
 user_id=user_123&agent_id=support_bot" \
-  -H "X-API-Key: ml_live_xxx"
+  -H "X-API-Key: rm_live_xxx"
 ```
 
 ```python Python SDK

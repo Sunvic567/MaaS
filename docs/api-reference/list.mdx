@@ -1,6 +1,6 @@
 ---
 title: List Memories
-api: GET https://memlayer.online/memories
+api: GET https://api.remem.online/memories
 description: Browse all stored memories for a user and agent pair.
 ---
 
@@ -16,7 +16,7 @@ Returns all memories for a user and agent, sorted by most recent first. Useful f
 
 | Name | Required | Description |
 |------|----------|-------------|
-| `X-API-Key` | Yes | Your MemLayer API key |
+| `X-API-Key` | Yes | Your Remem API key |
 
 ### Query Parameters
 
@@ -30,9 +30,9 @@ Returns all memories for a user and agent, sorted by most recent first. Useful f
 
 <CodeGroup>
 ```bash curl
-curl "https://memlayer.online/memories?\
+curl "https://api.remem.online/memories?\
 user_id=user_123&agent_id=support_bot&limit=20&offset=0" \
-  -H "X-API-Key: ml_live_xxx"
+  -H "X-API-Key: rm_live_xxx"
 ```
 
 ```python Python SDK

@@ -24,12 +24,12 @@ Next session — agent already knows the user
 ## Setup
 
 ```bash
-pip install memlayer-py openai python-dotenv
+pip install remem-py openai python-dotenv
 ```
 
 ```bash
 # .env
-MEMLAYER_API_KEY=ml_live_xxx
+REMEM_API_KEY=rm_live_xxx
 OPENAI_API_KEY=sk-xxx
 ```
 
@@ -40,13 +40,13 @@ OPENAI_API_KEY=sk-xxx
 ```python
 import os
 from openai import OpenAI
-from memlayer import MemLayerClient
+from remem import RememClient
 from dotenv import load_dotenv
 
 load_dotenv()
 
 openai  = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-memory  = MemLayerClient(api_key=os.getenv("MEMLAYER_API_KEY"))
+memory  = RememClient(api_key=os.getenv("REMEM_API_KEY"))
 
 AGENT_ID = "support_bot"
 

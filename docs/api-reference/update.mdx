@@ -1,12 +1,12 @@
 ---
 title: Update Memory
-api: PATCH https://memlayer.online/memories/{memory_id}
+api: PATCH https://api.remem.online/memories/{memory_id}
 description: Update the content of an existing memory.
 ---
 
 ## Overview
 
-When a fact changes, update the existing memory instead of creating a new one. MemLayer re-embeds the new content so future searches reflect the update. The memory ID stays the same.
+When a fact changes, update the existing memory instead of creating a new one. Remem re-embeds the new content so future searches reflect the update. The memory ID stays the same.
 
 **Example:** User says "I moved from Lagos to Abuja." Find the old location memory and update it — no duplicate memories, no conflicting facts.
 
@@ -18,7 +18,7 @@ When a fact changes, update the existing memory instead of creating a new one. M
 
 | Name | Required | Description |
 |------|----------|-------------|
-| `X-API-Key` | Yes | Your MemLayer API key |
+| `X-API-Key` | Yes | Your Remem API key |
 | `Content-Type` | Yes | `application/json` |
 
 ### Path Parameters
@@ -39,8 +39,8 @@ When a fact changes, update the existing memory instead of creating a new one. M
 
 <CodeGroup>
 ```bash curl
-curl -X PATCH https://memlayer.online/memories/775263ee-73af-4416-9804-1f274048ae08 \
-  -H "X-API-Key: ml_live_xxx" \
+curl -X PATCH https://api.remem.online/memories/775263ee-73af-4416-9804-1f274048ae08 \
+  -H "X-API-Key: rm_live_xxx" \
   -H "Content-Type: application/json" \
   -d '{
     "user_id":     "user_123",
