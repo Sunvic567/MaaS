@@ -53,7 +53,7 @@ async def create_tenant(
     )
 
     return TenantOut(
-        id=tenant["tenant_id"],
+        tenant_id=tenant["tenant_id"],
         name=tenant["name"],
         email=tenant["email"],
         plan=tenant["plan"],
