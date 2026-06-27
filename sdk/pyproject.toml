@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "Remem-py"
+version = "0.1.4"
+description = "Persistent memory for AI agents — one API key, your agent remembers everything."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Victor Sunday", email = "sunvictor567@gmail.com" }]
+requires-python = ">=3.10"
+keywords = [
+    "ai", "agent", "memory", "vector", "search",
+    "langchain", "langgraph", "remem", "persistent memory",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = ["httpx>=0.27.0"]
+
+[project.urls]
+Homepage      = "https://dev.remem.online"
+Documentation = "https://docs.remem.online"
+Repository    = "https://github.com/sunvic567/remem"
+"Bug Tracker" = "https://github.com/sunvic567/remem/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["remem*"]

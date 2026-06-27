@@ -7,9 +7,9 @@ Install:
     pip install Remem-py
 
 Usage:
-    from memlayer import MemLayerClient
+    from remem import RememClient
 
-    client = RememClient(api_key="rm_live_xxx")
+    client = RememClient(api_key="remem_live_xxx")
 
     # Store a memory
     mem_id = client.remember(
