@@ -1,6 +1,12 @@
 # remem-py
 
-A lightweight Python SDK for Remem: persistent memory storage and retrieval for AI agents.
+A lightweight Python SDK for [Remem](https://remem.online) — persistent memory storage and retrieval for AI agents.
+
+[![PyPI version](https://img.shields.io/pypi/v/Remem-py.svg)](https://pypi.org/project/Remem-py/)
+[![Python 3.10+](https://img.shields.io/pypi/pyversions/Remem-py.svg)](https://pypi.org/project/Remem-py/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
 
 ## Install
 
@@ -8,22 +14,24 @@ A lightweight Python SDK for Remem: persistent memory storage and retrieval for 
 pip install Remem-py
 ```
 
+---
+
 ## Quick Start
 
 ```python
 from remem import RememClient
 
-client = RememClient(
-    api_key="remem_live_xxx",
-    base_url="https://dev.`remem.online",
-)
+client = RememClient(api_key="remem_live_xxx")
 
+# Store a memory
 result = client.remember(
     "User prefers dark mode",
     user_id="user_123",
     agent_id="support_bot",
 )
+print(result.id)
 
+# Recall relevant memories
 memories = client.recall(
     "What does this user prefer?",
     user_id="user_123",
@@ -34,93 +42,132 @@ for memory in memories:
     print(memory.content, memory.score)
 ```
 
-## How it works
+---
 
-The SDK wraps MemLayer REST endpoints with a simple client interface.
+## Async Support
 
-### Sync client
-
-Use `MemLayerClient` for synchronous applications:
-
-```python
-from memlayer import MemLayerClient
-
-client = RememClient(api_key="rm_live_xxx")
-```
-
-### Async client
-
-Use `AsyncRememClient` for async apps and frameworks like FastAPI:
+Use `AsyncRememClient` for async apps and frameworks like FastAPI or LangGraph:
 
 ```python
 from remem import AsyncRememClient
 
-async with AsyncRememClient(api_key="ml_live_xxx") as client:
+async with AsyncRememClient(api_key="remem_live_xxx") as client:
     await client.remember(
         "User prefers concise responses",
         user_id="user_123",
         agent_id="support_bot",
     )
+
+    memories = await client.recall(
+        "What are this user's preferences?",
+        user_id="user_123",
+        agent_id="support_bot",
+    )
 ```
 
-## Client methods
+---
 
-### `remember(...)`
-Store a memory for a user+agent pair.
+## Client Methods
 
-### `recall(...)`
-Search memories using semantic similarity plus recency and importance.
+| Method | Description |
+|---|---|
+| `remember(...)` | Store a memory for a user+agent pair |
+| `recall(...)` | Semantic search — returns top-k memories by hybrid score |
+| `context(...)` | Load contextual memories at session start |
+| `list(...)` | List all stored memories with pagination |
+| `update(...)` | Update an existing memory with new content |
+| `forget(...)` | Delete a single memory by ID |
+| `forget_all(...)` | Wipe all memories for a user+agent pair |
+| `is_duplicate(...)` | Check whether a memory already exists before storing |
 
-### `context(...)`
-Load contextual memories for the start of a session.
-
-### `list(...)`
-List stored memories with pagination.
-
-### `update(...)`
-Update an existing memory with new content.
-
-### `forget(...)`
-Delete a single memory by ID.
-
-### `forget_all(...)`
-Wipe all memories for a user+agent pair.
-
-### `is_duplicate(...)`
-Check whether a memory already exists before storing.
+---
 
 ## Configuration
 
-- `api_key`: required
-- `base_url`: defaults to `https://memlayer.online`
-- `timeout`: request timeout in seconds
+```python
+client = RememClient(
+    api_key="remem_live_xxx",   # required
+    base_url="https://api.remem.online",  # default
+    timeout=30.0,               # seconds
+)
+```
 
-## Error handling
+---
 
-The SDK raises custom exceptions for common API failures:
+## Error Handling
 
-- `AuthenticationError`
-- `PlanLimitError`
-- `MemoryNotFoundError`
-- `DuplicateMemoryError`
-- `MemLayerError`
+```python
+from remem import (
+    RememClient,
+    AuthenticationError,
+    PlanLimitError,
+    MemoryNotFoundError,
+    DuplicateMemoryError,
+    RememError,
+)
 
-## Package info
+client = RememClient(api_key="remem_live_xxx")
 
-Package name: `memlayer-py`
-Version: `0.1.3`
+try:
+    result = client.remember(
+        "User prefers dark mode",
+        user_id="user_123",
+        agent_id="support_bot",
+    )
 
-## Contributing
+except AuthenticationError:
+    print("Invalid API key")
 
-If you want to improve the SDK:
+except PlanLimitError:
+    print("Memory limit reached — upgrade your plan at remem.online")
 
-1. Fork the repo
-2. Update `sdk/README.md`
-3. Submit a PR
+except DuplicateMemoryError:
+    print("This memory already exists — skipped")
 
-## License
+except MemoryNotFoundError:
+    print("Memory ID not found")
 
-MIT License
+except RememError as e:
+    print(f"API error {e.status_code}: {e.detail}")
+```
+
+---
+
+## Context Manager
+
+```python
+# Sync
+with RememClient(api_key="remem_live_xxx") as client:
+    client.remember("User is in Lagos", user_id="u1", agent_id="bot")
+
+# Async
+async with AsyncRememClient(api_key="remem_live_xxx") as client:
+    await client.remember("User is in Lagos", user_id="u1", agent_id="bot")
+```
+
+---
+
+## LangGraph Integration
+
+```python
+from langgraph.graph import StateGraph, MessagesState
+from remem import AsyncRememClient
+
+remem = AsyncRememClient(api_key="remem_live_xxx")
+
+
+async def load_memory(state: MessagesState):
+    """Load memories before the agent responds."""
+    last_message = state["messages"][-1].content
+
+    result = await remem.recall(
+        query=last_message,
+        user_id=state["user_id"],
+        agent_id="my_agent",
+    )
+
+    context = "\n".join(m.content for m in result)
+    # inject context into your prompt here
     return state
 
 
@@ -128,7 +175,7 @@ async def save_memory(state: MessagesState):
     """Save what the agent learned after responding."""
     last_message = state["messages"][-1].content
 
-    await maas.remember(
+    await remem.remember(
         content=last_message,
         user_id=state["user_id"],
         agent_id="my_agent",
@@ -149,59 +196,6 @@ builder.add_edge("agent", "save_memory")
 
 ---
 
-## Error Handling
-
-```python
-from memlayer import (
-    MemLayerClient,
-    AuthenticationError,
-    PlanLimitError,
-    MemoryNotFoundError,
-    DuplicateMemoryError,
-    MemLayerError,
-)
-
-client = MemLayerClient(api_key="ml_live_xxx")
-
-try:
-    result = client.remember(
-        "User prefers dark mode",
-        user_id="user_123",
-        agent_id="support_bot",
-    )
-
-except AuthenticationError:
-    print("Invalid API key — check your ml_live_xxx key")
-
-except PlanLimitError:
-    print("Memory limit reached — upgrade your plan at memlayer.online")
-
-except DuplicateMemoryError:
-    print("This memory already exists — skipped")
-
-except MemoryNotFoundError:
-    print("Memory ID not found")
-
-except MemLayerError as e:
-    print(f"API error {e.status_code}: {e.detail}")
-```
-
----
-
-## Context Manager
-
-```python
-# Sync
-with MemLayerClient(api_key="ml_live_xxx") as client:
-    client.remember("something", user_id="u1", agent_id="bot")
-
-# Async
-async with AsyncMemLayerClient(api_key="ml_live_xxx") as client:
-    await client.remember("something", user_id="u1", agent_id="bot")
-```
-
----
-
 ## Pricing
 
 | Plan | Memories | Requests/day | Price |
@@ -216,35 +210,43 @@ Enterprise includes BYOD (Bring Your Own Database) — your data never leaves yo
 
 ## REST API
 
-You don't need the SDK — every method maps to a REST endpoint:
+Every method maps to a REST endpoint:
 
 ```bash
 # Store
-curl -X POST https://memlayer.online/memories \
-  -H "X-API-Key: ml_live_xxx" \
+curl -X POST https://api.remem.online/memories \
+  -H "X-API-Key: remem_live_xxx" \
   -H "Content-Type: application/json" \
   -d '{"content": "User prefers dark mode", "user_id": "u1", "agent_id": "bot"}'
 
 # Search
-curl "https://memlayer.online/memories/search?query=preferences&user_id=u1&agent_id=bot" \
-  -H "X-API-Key: ml_live_xxx"
+curl "https://api.remem.online/memories/search?query=preferences&user_id=u1&agent_id=bot" \
+  -H "X-API-Key: remem_live_xxx"
 
 # Context
-curl "https://memlayer.online/memories/context?user_id=u1&agent_id=bot" \
-  -H "X-API-Key: ml_live_xxx"
+curl "https://api.remem.online/memories/context?user_id=u1&agent_id=bot" \
+  -H "X-API-Key: remem_live_xxx"
 ```
 
-Full API reference at [memlayer.online/docs](https://memlayer.online/docs).
+Full API reference at [remem.online/docs](https://remem.online/docs).
 
 ---
 
 ## Links
 
-- [Website](https://dev.memlayer.online)
-- [API Docs](https://doc.memlayer.online)
-- [GitHub](https://github.com/sunvic567/memlayer)
-- [Report a Bug](https://github.com/sunvic567/memlayer/issues)
-- [Email](mailto:support@memlayer.online)
+- [Website](https://dev.remem.online)
+- [API Docs](https://docs.remem.online)
+- [GitHub](https://github.com/sunvic567/remem)
+- [Report a Bug](https://github.com/sunvic567/remem/issues)
+- [Email](mailto:support@remem.online)
+
+---
+
+## Package Info
+
+- **Package**: `Remem-py`
+- **Version**: `0.1.4`
+- **Import**: `from remem import RememClient`
 
 ---
 
