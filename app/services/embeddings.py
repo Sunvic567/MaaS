@@ -1,31 +1,21 @@
 import os
 import time
 import logging
-#from openai import OpenAI
-from app.core.config import Settings
-from langchain_huggingface import HuggingFaceEndpointEmbeddings
-
-settings = Settings()
-
-
+from huggingface_hub import InferenceClient
 
 logger          = logging.getLogger(__name__)
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
 DIMENSIONS      = 384
 
-_embedder = HuggingFaceEndpointEmbeddings(
-    model=EMBEDDING_MODEL,
-    huggingfacehub_api_token=os.getenv("HUGGINGFACEHUB_API_TOKEN"),
+_client = InferenceClient(
+    token=os.getenv("HUGGINGFACEHUB_API_TOKEN")
 )
-
 
 def embed_for_storage(text: str, retries: int = 3, delay: float = 1.5) -> list[float]:
     return _embed(text, retries, delay)
 
-
 def embed_for_search(text: str, retries: int = 3, delay: float = 1.5) -> list[float]:
     return _embed(text, retries, delay)
-
 
 def _embed(text: str, retries: int, delay: float) -> list[float]:
     prefixed = f"Represent this sentence for searching relevant passages: {text}"
@@ -33,7 +23,12 @@ def _embed(text: str, retries: int, delay: float) -> list[float]:
 
     for attempt in range(1, retries + 1):
         try:
-            return _embedder.embed_query(prefixed)
+            result = _client.feature_extraction(
+                prefixed,
+                model=EMBEDDING_MODEL,
+            )
+            # result is a numpy array, convert to list
+            return result.tolist()
         except Exception as e:
             last_error = e
             logger.warning(
@@ -45,7 +40,6 @@ def _embed(text: str, retries: int, delay: float) -> list[float]:
     raise RuntimeError(
         f"Embedding failed after {retries} attempts: {last_error}"
     )
-
 
 
 
