@@ -1,15 +1,13 @@
 import os
 import time
 import logging
-from huggingface_hub import InferenceClient
+import requests
 
 logger          = logging.getLogger(__name__)
-EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
-DIMENSIONS      = 384
-
-_client = InferenceClient(
-    token=os.getenv("HUGGINGFACEHUB_API_TOKEN")
-)
+EMBEDDING_MODEL = "nomic-ai/nomic-embed-text-v1.5"
+DIMENSIONS      = 768   
+FIREWORKS_API_KEY = os.getenv("FIREWORKS_API_KEY")
+FIREWORKS_URL   = "https://api.fireworks.ai/inference/v1/embeddings"
 
 def embed_for_storage(text: str, retries: int = 3, delay: float = 1.5) -> list[float]:
     return _embed(text, retries, delay)
@@ -18,17 +16,25 @@ def embed_for_search(text: str, retries: int = 3, delay: float = 1.5) -> list[fl
     return _embed(text, retries, delay)
 
 def _embed(text: str, retries: int, delay: float) -> list[float]:
-    prefixed = f"Represent this sentence for searching relevant passages: {text}"
     last_error = None
 
     for attempt in range(1, retries + 1):
         try:
-            result = _client.feature_extraction(
-                prefixed,
-                model=EMBEDDING_MODEL,
+            response = requests.post(
+                FIREWORKS_URL,
+                headers={
+                    "Authorization": f"Bearer {FIREWORKS_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": EMBEDDING_MODEL,
+                    "input": text
+                },
+                timeout=10
             )
-            # result is a numpy array, convert to list
-            return result.tolist()
+            response.raise_for_status()
+            return response.json()["data"][0]["embedding"]
+
         except Exception as e:
             last_error = e
             logger.warning(
@@ -40,59 +46,3 @@ def _embed(text: str, retries: int, delay: float) -> list[float]:
     raise RuntimeError(
         f"Embedding failed after {retries} attempts: {last_error}"
     )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# logger          = logging.getLogger(__name__)
-# EMBEDDING_MODEL = "text-embedding-3-small"
-# DIMENSIONS      = 1536
-
-# client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-
-# def embed_for_storage(text: str, retries: int = 3, delay: float = 1.5) -> list[float]:
-#     return embed(text, retries, delay)
-
-
-# def embed_for_search(text: str, retries: int = 3, delay: float = 1.5) -> list[float]:
-#     return embed(text, retries, delay)
-
-
-# def embed(text: str, retries: int, delay: float) -> list[float]:
-#     last_error = None
-
-#     for attempt in range(1, retries + 1):
-#         try:
-#             response = client.embeddings.create(
-#                 model=EMBEDDING_MODEL,
-#                 input=text,
-#                 encoding_format="float",
-#             )
-#             return response.data[0].embedding
-#         except Exception as e:
-#             last_error = e
-#             logger.warning(
-#                 "Embedding attempt %d/%d failed: %s", attempt, retries, e
-#             )
-#             if attempt < retries:
-#                 time.sleep(delay * attempt)
-
-#     raise RuntimeError(
-#         f"Embedding failed after {retries} attempts: {last_error}"
-#     )
