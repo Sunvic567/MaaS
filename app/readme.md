@@ -106,17 +106,6 @@ Agent Context Window
 }
 ```
 
-| Metric | Result |
-|--------|--------|
-| Embedding avg latency | 418.73ms |
-| Embedding min latency | 312.89ms |
-| Embedding max latency | 507.28ms |
-| Samples | 5 |
-| Errors | 0 |
-| Embedding model | nomic-embed-text-v1.5 |
-| Vector dimensions | 768 |
-| Hardware | AMD Instinct MI300X via Fireworks AI |
-
 ---
 
 ## Quick Start
