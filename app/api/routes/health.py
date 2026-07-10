@@ -5,7 +5,7 @@ settings = get_settings()
 router   = APIRouter(tags=["health"])
 
 
-@router.get("/health")
+@router.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {
         "status":   "ok",
