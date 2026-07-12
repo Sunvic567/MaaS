@@ -19,7 +19,7 @@ load_dotenv()
 # ── Clients ──────────────────────────────────────────────────
 remem = RememClient(
     api_key  = os.getenv("REMEM_API_KEY") or "",
-    base_url = "https://dev.remem.online"
+    base_url = "https://api.remem.online"
 )
 
 llm = ChatGoogleGenerativeAI(
