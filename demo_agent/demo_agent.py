@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from remem import RememClient
+from remem.client import DuplicateMemoryError
 
 load_dotenv()
 
@@ -114,12 +115,15 @@ def agent_with_memory(user_id: str, user_message: str) -> str:
     reply    = str(response.content)
 
     # Store this interaction in Remem for future sessions
-    _call_with_rate_limit(
+    try:
+     _call_with_rate_limit(
         remem.remember,
         content=f"User: {user_message} | Agent: {reply[:300]}",
         user_id=user_id,
         agent_id=AGENT_ID,
     )
+    except DuplicateMemoryError:
+     pass  # Memory already exists — expected behavior, not an error
 
     return reply
 
